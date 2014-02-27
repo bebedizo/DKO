@@ -306,6 +306,24 @@ public interface Query<T extends Table> extends Iterable<T> {
 	@Deprecated
 	public int deleteAll() throws SQLException;
 
+	/**
+	 * Truncates this table.
+	 * Usage:  SomeClass.ALL.truncate()
+	 * Use with caution!
+	 * @return
+	 * @throws SQLException
+	 */
+	public void truncate() throws SQLException;
+
+	/**
+	 * Sets the autoincrement value of this table.
+	 * Usage:  SomeClass.ALL.setAutoIncrement( <value> )
+	 * Use with caution!
+	 * @return
+	 * @throws SQLException
+	 */
+	public void setAutoIncrement( long ai ) throws SQLException;
+
 //	/**
 //	 * Not implemented yet.
 //	 * @param field

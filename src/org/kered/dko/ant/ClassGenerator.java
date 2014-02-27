@@ -976,6 +976,60 @@ class ClassGenerator {
 		br.write("\t\treturn count==1;\n");
 		br.write("\t}\n");
 
+		// write truncate function
+		br.write("\t/**\n");
+		br.write("\t * Truncates this table in the database using the default DataSource.\n");
+		br.write("\t */\n");
+		br.write("\tpublic void truncate() throws SQLException {\n");
+		br.write("\t\t truncate(ALL.getDataSource());\n");
+		br.write("\t}\n");
+		br.write("\t/**\n");
+		br.write("\t * Truncates this table in the database using the specified DataSource.\n");
+		br.write("\t */\n");
+		br.write("\t@SuppressWarnings(\"rawtypes\")\n");
+		br.write("\tpublic void truncate(final DataSource _ds) throws SQLException {\n");
+		br.write("\t\tfinal Query<"+ className +"> query = ALL.use(_ds)");
+		br.write(";\n");
+		br.write("\t\tif (__NOSCO_CALLBACK_TRUNCATE_PRE!=null) "
+				+ "try {\n\t\t\tfinal "+ className +"[] __NOSCO_CALLBACKS = {this};\n"
+				+ "\t\t\t__NOSCO_CALLBACK_TRUNCATE_PRE.invoke(null, (Object)__NOSCO_CALLBACKS, _ds); }"
+				+ "catch (IllegalAccessException e) { e.printStackTrace(); } "
+				+ "catch (InvocationTargetException e) { e.printStackTrace(); }\n");
+		br.write("\t\tquery.truncate();\n");
+		br.write("\t\tif (__NOSCO_CALLBACK_TRUNCATE_POST!=null) "
+				+ "try {\n\t\t\tfinal "+ className +"[] __NOSCO_CALLBACKS = {this};\n"
+				+ "\t\t\t__NOSCO_CALLBACK_TRUNCATE_POST.invoke(null, (Object)__NOSCO_CALLBACKS, _ds); }"
+				+ "catch (IllegalAccessException e) { e.printStackTrace(); } "
+				+ "catch (InvocationTargetException e) { e.printStackTrace(); }\n");
+		br.write("\t}\n");
+
+		// write setAutoIncrement function
+		br.write("\t/**\n");
+		br.write("\t * Sets the auto_increment value of this table in the database using the default DataSource.\n");
+		br.write("\t */\n");
+		br.write("\tpublic void setAutoIncrement( long ai ) throws SQLException {\n");
+		br.write("\t\t setAutoIncrement(ai, ALL.getDataSource());\n");
+		br.write("\t}\n");
+		br.write("\t/**\n");
+		br.write("\t * Sets the auto_increment value of this table in the database using the specified DataSource.\n");
+		br.write("\t */\n");
+		br.write("\t@SuppressWarnings(\"rawtypes\")\n");
+		br.write("\tpublic void setAutoIncrement( long ai, final DataSource _ds) throws SQLException {\n");
+		br.write("\t\tfinal Query<"+ className +"> query = ALL.use(_ds)");
+		br.write(";\n");
+		br.write("\t\tif (__NOSCO_CALLBACK_SET_AUTO_INCREMENT_PRE!=null) "
+				+ "try {\n\t\t\tfinal "+ className +"[] __NOSCO_CALLBACKS = {this};\n"
+				+ "\t\t\t__NOSCO_CALLBACK_SET_AUTO_INCREMENT_PRE.invoke(null, (Object)__NOSCO_CALLBACKS, _ds); }"
+				+ "catch (IllegalAccessException e) { e.printStackTrace(); } "
+				+ "catch (InvocationTargetException e) { e.printStackTrace(); }\n");
+		br.write("\t\tquery.setAutoIncrement( ai );\n");
+		br.write("\t\tif (__NOSCO_CALLBACK_SET_AUTO_INCREMENT_POST!=null) "
+				+ "try {\n\t\t\tfinal "+ className +"[] __NOSCO_CALLBACKS = {this};\n"
+				+ "\t\t\t__NOSCO_CALLBACK_SET_AUTO_INCREMENT_POST.invoke(null, (Object)__NOSCO_CALLBACKS, _ds); }"
+				+ "catch (IllegalAccessException e) { e.printStackTrace(); } "
+				+ "catch (InvocationTargetException e) { e.printStackTrace(); }\n");
+		br.write("\t}\n");
+
 		// write insert function
 		br.write("\t/**\n");
 		br.write("\t * Inserts this row in the database using the default DataSource.\n");
@@ -1068,6 +1122,10 @@ class ClassGenerator {
 		br.write("\tprivate static Method __NOSCO_CALLBACK_UPDATE_POST = null;\n");
 		br.write("\tprivate static Method __NOSCO_CALLBACK_DELETE_PRE = null;\n");
 		br.write("\tprivate static Method __NOSCO_CALLBACK_DELETE_POST = null;\n");
+		br.write("\tprivate static Method __NOSCO_CALLBACK_TRUNCATE_PRE = null;\n");
+		br.write("\tprivate static Method __NOSCO_CALLBACK_TRUNCATE_POST = null;\n");
+		br.write("\tprivate static Method __NOSCO_CALLBACK_SET_AUTO_INCREMENT_PRE = null;\n");
+		br.write("\tprivate static Method __NOSCO_CALLBACK_SET_AUTO_INCREMENT_POST = null;\n");
 		br.write("\tprivate static Method __NOSCO_CALLBACK_HASH_CODE = null;\n");
 		br.write("\tprivate static Method __NOSCO_CALLBACK_EQUALS = null;\n");
 		br.write("\tprivate static Method __NOSCO_CALLBACK_COMPARE_TO = null;\n");
@@ -1104,6 +1162,22 @@ class ClassGenerator {
 			br.write("\t\ttry {\n");
 			br.write("\t\t\t __NOSCO_CALLBACK_DELETE_POST = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"postDelete\", " + className + "[].class, DataSource.class);\n");
 			br.write("\t\t\t__NOSCO_LOGGER.fine(\"found postDelete callback \"+ __NOSCO_CALLBACK_DELETE_POST);\n");
+			br.write("\t\t} catch (final Exception e) { /* ignore */ }\n");
+			br.write("\t\ttry {\n");
+			br.write("\t\t\t __NOSCO_CALLBACK_TRUNCATE_PRE = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"preTruncate\", " + className + "[].class, DataSource.class);\n");
+			br.write("\t\t\t__NOSCO_LOGGER.fine(\"found preTruncate callback \"+ __NOSCO_CALLBACK_TRUNCATE_PRE);\n");
+			br.write("\t\t} catch (final Exception e) { /* ignore */ }\n");
+			br.write("\t\ttry {\n");
+			br.write("\t\t\t __NOSCO_CALLBACK_TRUNCATE_POST = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"postTruncate\", " + className + "[].class, DataSource.class);\n");
+			br.write("\t\t\t__NOSCO_LOGGER.fine(\"found postTruncate callback \"+ __NOSCO_CALLBACK_TRUNCATE_POST);\n");
+			br.write("\t\t} catch (final Exception e) { /* ignore */ }\n");
+			br.write("\t\ttry {\n");
+			br.write("\t\t\t __NOSCO_CALLBACK_SET_AUTO_INCREMENT_PRE = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"preSetAutoIncrement\", " + className + "[].class, DataSource.class);\n");
+			br.write("\t\t\t__NOSCO_LOGGER.fine(\"found preSetAutoIncrement callback \"+ __NOSCO_CALLBACK_SET_AUTO_INCREMENT_PRE);\n");
+			br.write("\t\t} catch (final Exception e) { /* ignore */ }\n");
+			br.write("\t\ttry {\n");
+			br.write("\t\t\t __NOSCO_CALLBACK_SET_AUTO_INCREMENT_POST = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"postSetAutoIncrement\", " + className + "[].class, DataSource.class);\n");
+			br.write("\t\t\t__NOSCO_LOGGER.fine(\"found postSetAutoIncrement callback \"+ __NOSCO_CALLBACK_SET_AUTO_INCREMENT_POST);\n");
 			br.write("\t\t} catch (final Exception e) { /* ignore */ }\n");
 			br.write("\t\ttry {\n");
 			br.write("\t\t\t __NOSCO_CALLBACK_INSERT_PRE_OLD = Class.forName(\"" + callbackPackage + "." + pkgAndClassName + "CB\").getMethod(\"preInsert\", " + className + ".class, DataSource.class);\n");

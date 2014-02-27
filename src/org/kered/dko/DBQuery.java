@@ -536,6 +536,142 @@ class DBQuery<T extends Table> extends AbstractQuery<T> {
 		}
 	}
 
+	@Override
+	public void truncate() throws SQLException {
+		final DBQuery<T> q = new DBQuery<T>(this);
+		final SqlContext context = new SqlContext(q);
+		final DataSource ds = getDataSource();
+		final Tuple2<Connection,Boolean> info = q.getConnRW(ds);
+		final Connection conn = info.a;
+		q.initTableNameMap(true);
+		// this forces the table field dereferencing to use the full table name, not the alias (which is not allowed on deletes)
+		q.tableInfos.get(0).tableName = null;
+		final Tuple2<String, List<Object>> wcab = q.getWhereClauseAndBindings(context);
+		try {
+			final String schema = Context.getSchemaToUse(ds, Util.getSchemaName(ofType));
+			String schemaWithDot = schema==null || "".equals(schema) ? "" : schema + ".";
+			if (q.getDBType()==DB_TYPE.MYSQL) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("MYSQL multi-table truncate " +
+						"is not yet supported");
+				final String sql = "truncate table " + schemaWithDot + Util.getTableName(ofType) + wcab.a;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else if (getDBType()==DB_TYPE.SQLITE3) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("SQLITE3 multi-table truncate " +
+						"is not yet supported");
+				final String sql = "truncate table " + schemaWithDot + Util.getTableName(ofType) + wcab.a;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else if (getDBType()==DB_TYPE.SQLSERVER) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("SQLSERVER multi-table truncate " +
+						"is not yet supported");
+				if (!"".equals(schemaWithDot)) schemaWithDot = schemaWithDot + ".";
+				final String sql = "truncate table "+ schemaWithDot + Util.getTableName(ofType) + wcab.a;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("multi-table truncate " +
+						"is not yet supported");
+				final String sql = "truncate table " + schemaWithDot + Util.getTableName(ofType) + wcab.a;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			}
+		} finally {
+			if (info.b) {
+				if (!conn.getAutoCommit()) conn.commit();
+				conn.close();
+			}
+		}
+	}
+
+	@Override
+	public void setAutoIncrement( long ai ) throws SQLException {
+		final DBQuery<T> q = new DBQuery<T>(this);
+		final SqlContext context = new SqlContext(q);
+		final DataSource ds = getDataSource();
+		final Tuple2<Connection,Boolean> info = q.getConnRW(ds);
+		final Connection conn = info.a;
+		q.initTableNameMap(true);
+		// this forces the table field dereferencing to use the full table name, not the alias (which is not allowed on deletes)
+		q.tableInfos.get(0).tableName = null;
+		final Tuple2<String, List<Object>> wcab = q.getWhereClauseAndBindings(context);
+		try {
+			final String schema = Context.getSchemaToUse(ds, Util.getSchemaName(ofType));
+			String schemaWithDot = schema==null || "".equals(schema) ? "" : schema + ".";
+			if (q.getDBType()==DB_TYPE.MYSQL) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("MYSQL multi-table alter " +
+						"is not yet supported");
+				final String sql = "alter table " + schemaWithDot + Util.getTableName(ofType) + wcab.a + " auto_increment = " + ai;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else if (getDBType()==DB_TYPE.SQLITE3) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("SQLITE3 multi-table alter " +
+						"is not yet supported");
+				final String sql = "alter table " + schemaWithDot + Util.getTableName(ofType) + wcab.a + " auto_increment = " + ai;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else if (getDBType()==DB_TYPE.SQLSERVER) {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("SQLSERVER multi-table alter " +
+						"is not yet supported");
+				if (!"".equals(schemaWithDot)) schemaWithDot = schemaWithDot + ".";
+				final String sql = "alter table "+ schemaWithDot + Util.getTableName(ofType) + wcab.a + " auto_increment = " + ai;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			} else {
+				if (q.tableInfos.size() > 1 || !q.joins.isEmpty()) throw new RuntimeException("multi-table alter " +
+						"is not yet supported");
+				final String sql = "alter table " + schemaWithDot + Util.getTableName(ofType) + wcab.a + " auto_increment = " + ai;
+				Util.log(sql, wcab.b);
+				final PreparedStatement ps = createPS(sql, conn);
+				q.setBindings(ps, wcab.b);
+				ps.execute();
+				final int count = ps.getUpdateCount();
+				ps.close();
+				return;
+			}
+		} finally {
+			if (info.b) {
+				if (!conn.getAutoCommit()) conn.commit();
+				conn.close();
+			}
+		}
+	}
+
 //	@Override
 //	public Statistics stats(final Field<?>... field) {
 //		// TODO Auto-generated method stub

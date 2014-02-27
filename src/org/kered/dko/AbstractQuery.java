@@ -535,6 +535,16 @@ public abstract class AbstractQuery<T extends Table> implements Query<T> {
 	}
 
 	@Override
+	public void truncate() throws SQLException {
+		throw new UnsupportedOperationException("writes on "+ this.getClass().getSimpleName() +" are not supported");
+	}
+
+	@Override
+	public void setAutoIncrement( long ai ) throws SQLException {
+		throw new UnsupportedOperationException("writes on "+ this.getClass().getSimpleName() +" are not supported");
+	}
+
+	@Override
 	public Query<T> cross(final __Alias<? extends Table> t) {
 		throw new UnsupportedOperationException("joins on "+ this.getClass().getSimpleName() +" are not supported");
 	}
